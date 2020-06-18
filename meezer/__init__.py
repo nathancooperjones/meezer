@@ -1,2 +1,2 @@
 from .meezer import Meezer
-from .version import __version__
+from ._version import __version__

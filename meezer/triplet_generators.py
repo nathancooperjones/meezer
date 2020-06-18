@@ -8,7 +8,7 @@ from meezer.knn import extract_knn
 
 
 def generator_from_index(
-    X, Y, index_path, k, batch_size, search_k=-1, precompute=True, verbose=1
+    X, Y, index_path, k, batch_size, search_k=-1, verbose=1
 ):
     if k >= X.shape[0] - 1:
         raise Exception(
@@ -28,14 +28,14 @@ def generator_from_index(
         )
 
     if verbose > 0:
-        print('Extracting KNN from index')
+        print('Extracting KNN from index...')
 
-    neighbour_matrix = extract_knn(
+    neighbor_matrix = extract_knn(
         X, index_path, k=k, search_k=search_k, verbose=verbose
     )
 
     knn_sequence = LabeledKnnTripletGenerator(
-        X, Y, neighbour_matrix, batch_size=batch_size
+        X, Y, neighbor_matrix, batch_size=batch_size
     )
 
     return knn_sequence
@@ -43,9 +43,9 @@ def generator_from_index(
 
 class LabeledKnnTripletGenerator(Sequence):
     """TODO."""
-    def __init__(self, X, Y, neighbour_matrix, batch_size=32):
+    def __init__(self, X, Y, neighbor_matrix, batch_size=32):
         self.X, self.Y = X, Y
-        self.neighbour_matrix = neighbour_matrix
+        self.neighbor_matrix = neighbor_matrix
         self.batch_size = batch_size
         self.hard_mode = 0
 
@@ -61,8 +61,8 @@ class LabeledKnnTripletGenerator(Sequence):
 
         label_batch = self.Y[batch_indices]
         triplet_batch = [
-            self.knn_triplet_from_neighbour_list(
-                row_index=row_index, neighbour_list=self.neighbour_matrix[row_index]
+            self.knn_triplet_from_neighbor_list(
+                row_index=row_index, neighbor_list=self.neighbor_matrix[row_index]
             )
             for row_index in batch_indices
         ]
@@ -77,7 +77,7 @@ class LabeledKnnTripletGenerator(Sequence):
             tuple([np.array(label_batch), np.array(label_batch)]),
         )
 
-    def knn_triplet_from_neighbour_list(self, row_index, neighbour_list):
+    def knn_triplet_from_neighbor_list(self, row_index, neighbor_list):
         """
         Nate here: I'll be making most of my changes to this class, specifically this function here.
 
@@ -106,9 +106,9 @@ class LabeledKnnTripletGenerator(Sequence):
             while negative_ind in all_labels_with_row_label:
                 negative_ind = np.random.randint(0, self.X.shape[0])
         else:
-            # Take a random neighbour that is not a part of the label as negative
+            # Take a random neighbor that is not a part of the label as negative
             potential_neighbors = np.setdiff1d(
-                neighbour_list, all_labels_with_row_label
+                neighbor_list, all_labels_with_row_label
             )
             if len(potential_neighbors) > 0:
                 negative_ind = np.random.choice(potential_neighbors)

@@ -1,7 +1,5 @@
-# Ignore everything in the `data` directory...
-data/*
-# ... but not the .gitkeep file
-!data/.gitkeep
+# Ignore Annoy index files generated
+*.index
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

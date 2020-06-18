@@ -81,13 +81,6 @@ def get_multiclass_losses():
     return multiclass_losses
 
 
-def is_categorical(supervised_loss):
-    loss = keras.losses.get(supervised_loss)
-    if loss in get_categorical_losses():
-        return True
-    return False
-
-
 def is_multiclass(supervised_loss):
     loss = keras.losses.get(supervised_loss)
     if loss in get_multiclass_losses():
@@ -302,7 +295,7 @@ def zero_indexed(Y):
 
 
 def consecutive_indexed(Y):
-    """Assumes that Y is zero-indexed."""
+    """Assumes that `Y` is zero-indexed."""
     n_classes = len(np.unique(Y[Y != np.array(-1)]))
     if max(Y) >= n_classes:
         return False

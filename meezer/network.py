@@ -41,7 +41,7 @@ def base_network(model_name, input_shape):
         return maaten_base_network(input_shape)
 
     raise NotImplementedError(
-        'Base network {} is not implemented'.format(model_name))
+        'Base network {} is not implemented.'.format(model_name))
 
 
 def get_base_networks():

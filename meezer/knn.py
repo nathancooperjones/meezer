@@ -9,28 +9,30 @@ from scipy.sparse import issparse
 from tqdm.auto import tqdm
 
 
-def build_annoy_index(X, path, ntrees=50, build_index_on_disk=True, verbose=1):
+def build_annoy_index(X, path, ntrees=50, build_index_on_disk=True, verbose=True):
     """
-    Build a standalone annoy index.
+    Build a standalone Annoy index.
 
-    :param array X: numpy array with shape (n_samples, n_features)
-    :param str path: The filepath of a trained annoy index file
-        saved on disk.
-    :param int ntrees: The number of random projections trees built by Annoy to
-        approximate KNN. The more trees the higher the memory usage, but the
-        better the accuracy of results.
-    :param bool build_index_on_disk: Whether to build the annoy index directly
-        on disk. Building on disk should allow for bigger datasets to be indexed,
-        but may cause issues. If None, on-disk building will be enabled for Linux,
-        but not Windows due to issues on Windows.
-    :param int verbose: Controls the volume of logging output the model
-        produces when training. When set to 0, silences outputs, when above 0
-        will print outputs.
+    Parameters
+    -------------
+    X: np.array with shape (n_samples, n_features)
+    path: str or Path
+        The filepath of a trained annoy index file saved on disk
+    ntrees: int
+        The number of random projections trees built by Annoy to approximate KNN. The more trees,the
+        higher the memory usage, but the better the accuracy of results (default 50)
+    build_index_on_disk: bool
+        Whether to build the annoy index directly on disk. Building on disk should allow for bigger
+        datasets to be indexed, but may cause issues. If None, on-disk building will be enabled for
+        Linux, but not Windows due to issues on Windows.
+    verbose: bool
 
     """
+    verbose = int(verbose)
+
     index = AnnoyIndex(X.shape[1], metric='angular')
     if build_index_on_disk:
-        index.on_disk_build(path)
+        index.on_disk_build(str(path))
 
     if issparse(X):
         for i in tqdm(range(X.shape[0]), disable=verbose < 1):
@@ -44,11 +46,9 @@ def build_annoy_index(X, path, ntrees=50, build_index_on_disk=True, verbose=1):
     try:
         index.build(ntrees)
     except Exception:
-        msg = (
-            "Error building Annoy Index. Passing on_disk_build=False"
-            " may solve the issue, especially on Windows."
+        raise IndexBuildingError(
+            'Error building Annoy Index. Try setting `build_index_on_disk` to False.'
         )
-        raise IndexBuildingError(msg)
     else:
         if not build_index_on_disk:
             index.save(path)
@@ -57,11 +57,12 @@ def build_annoy_index(X, path, ntrees=50, build_index_on_disk=True, verbose=1):
 
 def extract_knn(X, index_filepath, k=150, search_k=-1, verbose=1):
     """
-    Starts multiple processes to retrieve nearest neighbours using an Annoy Index
+    Starts multiple processes to retrieve nearest neighbors using an Annoy Index
     in parallel.
 
     """
     n_dims = X.shape[1]
+    index_filepath = str(index_filepath)
 
     chunk_size = X.shape[0] // cpu_count()
     remainder = (X.shape[0] % cpu_count()) > 0
@@ -90,37 +91,37 @@ def extract_knn(X, index_filepath, k=150, search_k=-1, verbose=1):
 
         # Read from queue constantly to prevent it from becoming full
         with tqdm(total=X.shape[0], disable=verbose < 1) as pbar:
-            neighbour_list = []
-            neighbour_list_length = len(neighbour_list)
+            neighbor_list = []
+            neighbor_list_length = len(neighbor_list)
             while any(process.is_alive() for process in process_pool):
                 while not results_queue.empty():
-                    neighbour_list.append(results_queue.get())
-                progress = len(neighbour_list) - neighbour_list_length
+                    neighbor_list.append(results_queue.get())
+                progress = len(neighbor_list) - neighbor_list_length
                 pbar.update(progress)
-                neighbour_list_length = len(neighbour_list)
+                neighbor_list_length = len(neighbor_list)
                 time.sleep(0.1)
 
             while not results_queue.empty():
-                neighbour_list.append(results_queue.get())
+                neighbor_list.append(results_queue.get())
 
-        neighbour_list = sorted(neighbour_list, key=attrgetter('row_index'))
-        neighbour_list = list(map(attrgetter('neighbour_list'), neighbour_list))
+        neighbor_list = sorted(neighbor_list, key=attrgetter('row_index'))
+        neighbor_list = list(map(attrgetter('neighbor_list'), neighbor_list))
 
-        return np.array(neighbour_list)
+        return np.array(neighbor_list)
     except Exception:
-        print('Halting KNN retrieval and cleaning up')
+        print('Halting KNN retrieval and cleaning up.')
         for process in process_pool:
             process.terminate()
         raise
 
 
-IndexNeighbours = namedtuple('IndexNeighbours', 'row_index neighbour_list')
+IndexNeighbors = namedtuple('IndexNeighbors', 'row_index neighbor_list')
 
 
 class KNN_Worker(Process):
     """
     Upon construction, this worker process loads an annoy index from disk.
-    When started, the neighbours of the data-points specified by `data_indices`
+    When started, the neighbors of the data-points specified by `data_indices`
     will be retrieved from the index according to the provided parameters
     and stored in the 'results_queue'.
 
@@ -145,12 +146,12 @@ class KNN_Worker(Process):
             index = AnnoyIndex(self.n_dims, metric='angular')
             index.load(self.index_filepath)
             for i in range(self.data_indices[0], self.data_indices[1]):
-                neighbour_indexes = index.get_nns_by_item(
+                neighbor_indexes = index.get_nns_by_item(
                     i, self.k, search_k=self.search_k, include_distances=False
                 )
-                neighbour_indexes = np.array(neighbour_indexes, dtype=np.uint32)
+                neighbor_indexes = np.array(neighbor_indexes, dtype=np.uint32)
                 self.results_queue.put(
-                    IndexNeighbours(row_index=i, neighbour_list=neighbour_indexes)
+                    IndexNeighbors(row_index=i, neighbor_list=neighbor_indexes)
                 )
         except Exception as e:
             self.exception = e
