@@ -47,13 +47,15 @@ mistune==0.8.4            # via nbconvert
 nbconvert==5.6.1          # via notebook
 nbformat==5.0.7           # via ipywidgets, nbconvert, notebook
 notebook==6.0.3           # via jupyterlab, jupyterlab-server, widgetsnbextension
-numpy==1.18.5             # via h5py, keras-applications, keras-preprocessing, matplotlib, meezer, meezer (setup.py), opt-einsum, scikit-learn, scipy, tensorboard, tensorflow
+numpy==1.18.5             # via h5py, keras-applications, keras-preprocessing, matplotlib, meezer, meezer (setup.py), opt-einsum, pandas, scikit-learn, scipy, tensorboard, tensorflow
 opt-einsum==3.2.1         # via tensorflow
 packaging==20.4           # via bleach
+pandas==1.0.5             # via meezer, meezer (setup.py)
 pandocfilters==1.4.2      # via nbconvert
 parso==0.7.0              # via jedi
 pexpect==4.8.0            # via ipython
 pickleshare==0.7.5        # via ipython
+pillow==7.1.2             # via meezer, meezer (setup.py)
 prometheus-client==0.8.0  # via notebook
 prompt-toolkit==3.0.5     # via ipython
 protobuf==3.12.2          # via tensorboard, tensorflow
@@ -61,7 +63,8 @@ ptyprocess==0.6.0         # via pexpect, terminado
 pygments==2.6.1           # via ipython, nbconvert
 pyparsing==2.4.7          # via matplotlib, packaging
 pyrsistent==0.16.0        # via jsonschema
-python-dateutil==2.8.1    # via jupyter-client, matplotlib
+python-dateutil==2.8.1    # via jupyter-client, matplotlib, pandas
+pytz==2020.1              # via pandas
 pyzmq==19.0.1             # via jupyter-client, notebook
 requests==2.24.0          # via jupyterlab-server
 scikit-learn==0.23.1      # via meezer, meezer (setup.py)

@@ -147,6 +147,8 @@ class Meezer(BaseEstimator):
         self.supervised_model_ = None
         self.loss_history_ = list()
 
+        self.hard_mode = True
+
         self.build_index_on_disk = True if platform.system() != 'Windows' else False
 
     def __getstate__(self):
@@ -310,7 +312,7 @@ class Meezer(BaseEstimator):
 
                 assert X.shape[0] == neighbor_matrix.shape[0]
                 datagen.neighbor_matrix = neighbor_matrix
-                datagen.hard_mode = (epoch / self.epochs)
+                datagen.hard_mode = (epoch / self.epochs) if self.hard_mode is True else 0
 
                 if self.verbose > 0:
                     print('Training next epoch...')

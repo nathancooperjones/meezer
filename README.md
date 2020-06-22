@@ -7,22 +7,22 @@ A good deal of this code, especially files dealing with building and extracting 
 
 ## Usage
 ```python
-# get data
-from sklearn import datasets
+import matplotlib.pyplot as plt
+import sklearn
 
-digits = datasets.load_digits()
+from meezer import Meezer
+
+
+# GET DATA
+digits = sklearn.datasets.load_digits()
 
 X, labels = digits.data, digits.target
 labels = labels.astype(int)
 
-# scale data
-from sklearn.preprocessing import MinMaxScaler
+# SCALE DATA
+X_scaled = sklearn.preprocessing.MinMaxScaler().fit_transform(X)
 
-X_scaled = MinMaxScaler().fit_transform(X)
-
-# train model
-from meezer import Meezer
-
+# TRAIN A MODEL
 model = Meezer(embedding_dims=2,
                k=25,
                batch_size=512,
@@ -30,11 +30,7 @@ model = Meezer(embedding_dims=2,
                sub_epochs=10)
 embeddings = model.fit_transform(X=X_scaled, Y=labels)
 
-# visualize embeddings
-import matplotlib.pyplot as plt
-
-color = mnist.target.astype(int)
-
+# VISUALIZE EMBEDDINGS
 plt.scatter(x=embeddings[:, 0],
             y=embeddings[:, 1],
             c=labels,
@@ -58,4 +54,7 @@ docker run \
     -v "${PWD}:/meezer" \
     -p 8888:8888 \
     meezer /bin/bash
+
+# then run JupyterLab and begin development
+jupyter lab --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
 ```

@@ -19,6 +19,8 @@ setup(
         'jupyterlab',
         'matplotlib',
         'numpy',
+        'pandas',  # not really required, but just good to have in this Docker container
+        'pillow',  # required for Img2Vec
         'scikit-learn>0.20.0',
         'tensorflow==1.15.2',  # Tensorflow v2 is slower with many API-breaking changes
         'tqdm'

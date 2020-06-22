@@ -100,7 +100,7 @@ class LabeledKnnTripletGenerator(Sequence):
         while positive_ind == row_index:
             positive_ind = np.random.choice(all_labels_with_row_label)
 
-        if random.random() > self.hard_mode:  # TODO: allow this value to be set
+        if random.random() > self.hard_mode:
             # Take a random data point that is not the label as the negative example
             negative_ind = np.random.randint(0, self.X.shape[0])
             while negative_ind in all_labels_with_row_label:
