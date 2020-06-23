@@ -3,24 +3,26 @@ Supervised Siamese-ish networks using hard negative examples.
 
 ![](https://i.redd.it/fq6l78zdlow21.jpg)
 
-A good deal of this code, especially files dealing with building and extracting information from the `annoy` index, is based off of [Ivis](https://github.com/beringresearch/ivis). The `Img2Vec` code is based off of [this repo](https://github.com/jaredwinick/img2vec-keras). 
+A good deal of this code, especially files dealing with building and extracting information from the `Annoy` index, is based off of [Ivis](https://github.com/beringresearch/ivis). The `Img2Vec` code is based off of [this repo](https://github.com/jaredwinick/img2vec-keras).
 
 ## Usage
 ```python
 import matplotlib.pyplot as plt
-import sklearn
+import numpy as np
+from sklearn.datasets import load_digits
+from sklearn.preprocessing import MinMaxScaler
 
 from meezer import Meezer
 
 
 # GET DATA
-digits = sklearn.datasets.load_digits()
+digits = load_digits()
 
 X, labels = digits.data, digits.target
 labels = labels.astype(int)
 
 # SCALE DATA
-X_scaled = sklearn.preprocessing.MinMaxScaler().fit_transform(X)
+X_scaled = MinMaxScaler().fit_transform(X)
 
 # TRAIN A MODEL
 model = Meezer(embedding_dims=2,
@@ -37,6 +39,18 @@ plt.scatter(x=embeddings[:, 0],
             cmap='tab10',
             s=0.5,
             alpha=0.7)
+
+for i, mnist_num in enumerate(set(labels)):
+    mnist_num_idxs = np.argwhere(labels == mnist_num)
+    plt.scatter(embeddings[mnist_num_idxs, 0],
+                embeddings[mnist_num_idxs, 1],
+                color=plt.cm.gist_rainbow(i / len(set(labels))),
+                label=mnist_num)
+
+plt.xlabel('embedding dim 1')
+plt.ylabel('embedding dim 2')
+plt.legend(bbox_to_anchor=(1.04,1), loc='upper left')
+
 plt.show()
 ```
 

@@ -287,7 +287,7 @@ class Meezer(BaseEstimator):
             self.callbacks.append(early_stopping_monitor)
 
         for epoch in tqdm(range(0, self.epochs)):
-            if epoch > 0:
+            if epoch > 0 and self.supervision_weight < 1:
                 data_to_annoy = self.transform(X, verbose=False)
 
                 if self.verbose:

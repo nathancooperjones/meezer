@@ -79,8 +79,6 @@ class LabeledKnnTripletGenerator(Sequence):
 
     def knn_triplet_from_neighbor_list(self, row_index, neighbor_list):
         """
-        Nate here: I'll be making most of my changes to this class, specifically this function here.
-
         Rather than just returning:
         "A random (unweighted) positive example chosen."
 
