@@ -1,9 +1,9 @@
 # meezer
-Supervised Siamese networks using hard negative examples.
+Supervised Siamese-ish networks using hard negative examples.
 
 ![](https://i.redd.it/fq6l78zdlow21.jpg)
 
-A good deal of this code, especially files dealing with building and extracting information from the `annoy` index, is based off of [Ivis](https://github.com/beringresearch/ivis).
+A good deal of this code, especially files dealing with building and extracting information from the `annoy` index, is based off of [Ivis](https://github.com/beringresearch/ivis). The `Img2Vec` code is based off of [this repo](https://github.com/jaredwinick/img2vec-keras). 
 
 ## Usage
 ```python
