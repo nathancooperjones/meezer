@@ -33,18 +33,12 @@ model = Meezer(embedding_dims=2,
 embeddings = model.fit_transform(X=X_scaled, Y=labels)
 
 # VISUALIZE EMBEDDINGS
-plt.scatter(x=embeddings[:, 0],
-            y=embeddings[:, 1],
-            c=labels,
-            cmap='tab10',
-            s=0.5,
-            alpha=0.7)
-
 for i, mnist_num in enumerate(set(labels)):
     mnist_num_idxs = np.argwhere(labels == mnist_num)
     plt.scatter(embeddings[mnist_num_idxs, 0],
                 embeddings[mnist_num_idxs, 1],
                 color=plt.cm.gist_rainbow(i / len(set(labels))),
+                s=4,
                 label=mnist_num)
 
 plt.xlabel('embedding dim 1')
@@ -72,3 +66,9 @@ docker run \
 # then run JupyterLab and begin development
 jupyter lab --ip 0.0.0.0 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
 ```
+
+## TODOs
+- [ ] Exponential data `hard_mode` scheduler to introduce hard negative examples at a better rate than linearly.
+- [ ] Clean up notebooks to show examples a bit better and with more available data sources.
+- [ ] Add in traditional Siamese network using the triplet generator, but now feeding inputs to models two at a time, with `y` being a label of `1` if the pair are the same class or `0` otherwise. Using hard negative examples will help performance, most likely.
+- [ ] Better support for callbacks (early stopping, learning rate scheduler, etc.).

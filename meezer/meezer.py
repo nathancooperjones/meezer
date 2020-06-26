@@ -312,7 +312,8 @@ class Meezer(BaseEstimator):
 
                 assert X.shape[0] == neighbor_matrix.shape[0]
                 datagen.neighbor_matrix = neighbor_matrix
-                datagen.hard_mode = (epoch / self.epochs) if self.hard_mode is True else 0
+                # TODO: add in some exponential `hard_mode` scheduler
+                datagen.hard_mode = (epoch / self.epochs) + 0.2 if self.hard_mode is True else 0
 
                 if self.verbose > 0:
                     print('Training next epoch...')
